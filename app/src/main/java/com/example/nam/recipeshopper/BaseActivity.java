@@ -2,6 +2,7 @@ package com.example.nam.recipeshopper;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 /**
@@ -16,7 +17,12 @@ public class BaseActivity extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         if(actionBar == null) {
             // TODO: What to implement when actionbar is not on activity
-//            Toolbar toolbar = (Toolbar) findViewById(R.id.)
+            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+            if(toolbar != null) {
+                setSupportActionBar(toolbar);
+                actionBar = getSupportActionBar();
+            }
         }
 
         if(actionBar != null){

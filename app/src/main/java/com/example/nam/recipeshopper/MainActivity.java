@@ -1,15 +1,18 @@
 package com.example.nam.recipeshopper;
 
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements GetRecipeHtmlData.OnDataAvailable {
     private static final String TAG = "MainActivity";
-    private ListView listRecipes;
+    private RecipeRecyclerViewAdapter mRecipeRecyclerViewAdapter;
+    private List<RecipeEntry> listRecipes = new ArrayList<>();
 
 
     @Override
@@ -21,6 +24,10 @@ public class MainActivity extends BaseActivity implements GetRecipeHtmlData.OnDa
 
         // TODO: create RecyclerViewAdapter.
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        mRecipeRecyclerViewAdapter = new RecipeRecyclerViewAdapter(this, listRecipes);
+        recyclerView.setAdapter(mRecipeRecyclerViewAdapter);
     }
 
     @Override
@@ -28,7 +35,6 @@ public class MainActivity extends BaseActivity implements GetRecipeHtmlData.OnDa
         Log.d(TAG, "onResume: starts");
         super.onResume();
 
-        // Testing GetRecipeHtmlData
         GetRecipeHtmlData getRecipeHtmlData = new GetRecipeHtmlData(this);
         getRecipeHtmlData.execute("https://www.seriouseats.com/recipes/2011/07/real-deal-mapo-dofu-tofu-chinese-sichuan-recipe.html");
     }
@@ -38,6 +44,8 @@ public class MainActivity extends BaseActivity implements GetRecipeHtmlData.OnDa
         Log.d(TAG, "onDataAvailable: starts");
 
         if(status == DownloadStatus.OK) {
+            listRecipes.add(newEntry);
+            mRecipeRecyclerViewAdapter.loadNewData(listRecipes);
             Log.d(TAG, "onDataAvailable: adds entry to existing list here");
         } else {
             // download or processing failed

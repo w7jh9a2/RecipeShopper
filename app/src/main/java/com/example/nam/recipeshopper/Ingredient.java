@@ -2,6 +2,7 @@ package com.example.nam.recipeshopper;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +15,9 @@ import java.util.stream.Stream;
 
 enum Unit{TEASPOON, TABLESPOON, CUP, QUART, GALLON, LITER, MILLILITER, OUNCE, POUND, GRAM, KILOGRAM}
 
-public class Ingredient {
+public class Ingredient implements Serializable{
     private static final String TAG = "Ingredient";
+    private static final long serialVersionUID = 1L;
     final String Digits = "(\\p{Digit}+)";
 
     // TODO: Find better way to parse measurements to appropriate units

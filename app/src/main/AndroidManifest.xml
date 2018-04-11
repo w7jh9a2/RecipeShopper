@@ -21,7 +21,11 @@
         <activity
             android:name=".IngredientsActivity"
             android:label="@string/title_activity_ingredients"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.example.nam.recipeshopper.MainActivity" />
     </application>
 
 </manifest>

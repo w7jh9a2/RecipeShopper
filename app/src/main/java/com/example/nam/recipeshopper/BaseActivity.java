@@ -11,6 +11,7 @@ import android.util.Log;
 
 public class BaseActivity extends AppCompatActivity {
     private static final String TAG = "BaseActivity";
+    static final String RECIPE_TRANSFER = "RECIPE_TRANSFER";
 
     void activateToolbar(boolean enableHome) {
         Log.d(TAG, "activateToolbar: starts");

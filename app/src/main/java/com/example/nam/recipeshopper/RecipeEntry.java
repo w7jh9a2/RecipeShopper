@@ -1,5 +1,6 @@
 package com.example.nam.recipeshopper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,9 @@ import java.util.List;
  * Created by Nam on 3/5/2018.
  */
 
-public class RecipeEntry {
+public class RecipeEntry implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private String mTitle;
     private String mLink;
     private String mImageURL;

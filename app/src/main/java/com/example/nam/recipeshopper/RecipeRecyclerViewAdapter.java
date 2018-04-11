@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecyclerViewAdapter.RecipeViewHolder> {
@@ -28,7 +26,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     @Override
     public RecipeRecyclerViewAdapter.RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.d(TAG, "onCreateViewHolder: new view requested");
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_entry, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entry_list, parent, false);
         return new RecipeViewHolder(view);
     }
 
@@ -80,5 +78,9 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
             this.activeTime = (TextView) itemView.findViewById(R.id.activeTime);
             this.totalTime = (TextView) itemView.findViewById(R.id.totalTime);
         }
+    }
+
+    public RecipeEntry getRecipeEntry(int position) {
+        return((mRecipeList != null) && (mRecipeList.size() != 0) ? mRecipeList.get(position) : null);
     }
 }

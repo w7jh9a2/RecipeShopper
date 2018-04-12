@@ -31,6 +31,7 @@ public class IngredientsActivity extends BaseActivity implements RecyclerItemCli
         RecipeEntry recipeEntry = (RecipeEntry) intent.getSerializableExtra(RECIPE_TRANSFER);
         if(recipeEntry != null) {
             Log.d(TAG, "onCreate: Ingredient Activity recipe: " + recipeEntry.getTitle());
+            mIngredientList = recipeEntry.getIngredients();
         }
 
         // Sets RecyclerView to populate list of ingredients
@@ -39,7 +40,7 @@ public class IngredientsActivity extends BaseActivity implements RecyclerItemCli
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(this, recyclerView, this));
 
-        mIngredientRecyclerViewAdapter = new IngredientRecyclerViewAdapter(this, recipeEntry.getIngredients());
+        mIngredientRecyclerViewAdapter = new IngredientRecyclerViewAdapter(this, mIngredientList);
         recyclerView.setAdapter(mIngredientRecyclerViewAdapter);
 
         // TODO: FAB programming
@@ -63,5 +64,5 @@ public class IngredientsActivity extends BaseActivity implements RecyclerItemCli
     public void onItemLongClick(View view, int position) {
 
     }
-    
+
 }

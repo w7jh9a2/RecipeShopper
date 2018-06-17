@@ -1,6 +1,7 @@
 package com.example.nam.recipeshopper;
 
-import android.content.Intent;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,15 +16,77 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.example.nam.recipeshopper.BaseActivity.APP_DATA;
+import static com.example.nam.recipeshopper.BaseActivity.RECIPE_LIST_TRANSFER;
+import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
+import static com.example.nam.recipeshopper.BaseActivity.SHOPPING_TRANSFER;
+
 public class IngredientsFragment extends Fragment implements RecyclerItemClickListener.OnRecyclerClickListener{
     private static final String TAG = "IngredientsFragment";
 
     private IngredientRecyclerViewAdapter mIngredientRecyclerViewAdapter;
+    private List<RecipeEntry> mRecipeEntryList;
+    private List<Ingredient> mShoppingList;
+    private FileOutputStream mFileOutputStream;
+    private ObjectOutputStream mObjectOutputStream;
+    private RecipeEntry mRecipeEntry;
+    private int mRecipeEntryIndex;
+    private DataShareViewModel mViewModel;
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // TODO: Validation of recipeEntry
+        mRecipeEntry = (RecipeEntry) getArguments().getSerializable(RECIPE_TRANSFER);
+
+        // Gets ViewModel from MainActivity, which is a single ViewModel instance shared between the fragments of Main Activity
+        mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
+
+        final Observer<List<RecipeEntry>> recipeObserver = new Observer<List<RecipeEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<RecipeEntry> recipeEntries) {
+                mRecipeEntryList = recipeEntries;
+                mIngredientRecyclerViewAdapter.loadNewData(mRecipeEntryList.get(mRecipeEntryIndex).getIngredients());
+            }
+        };
+
+        final Observer<List<Ingredient>> shoppingObserver = new Observer<List<Ingredient>>() {
+            @Override
+            public void onChanged(@Nullable List<Ingredient> ingredients) {
+                mShoppingList = ingredients;
+            }
+        };
+
+        mViewModel.getUpdatedRecipeEntryList().observe(this, recipeObserver);
+        mViewModel.getUpdatedShoppingList().observe(this, shoppingObserver);
+
+        // TODO properly validate lists after opening
+        mRecipeEntryList = mViewModel.getSavedRecipeEntryList();
+        mShoppingList = mViewModel.getSavedShoppingList();
+        if(mShoppingList == null) {
+            mShoppingList = new ArrayList<>();
+        }
+
+        Log.d(TAG, "onCreate: recipeEntry = " + (mRecipeEntryList.indexOf(mRecipeEntry)));
+
+        // TODO: Check if necessary
+        mRecipeEntryIndex = mRecipeEntryList.indexOf(mRecipeEntry);
+        mRecipeEntry = mRecipeEntryList.get(mRecipeEntryIndex);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.activity_ingredients, container, false);
+        View v = inflater.inflate(R.layout.fragment_recipe, container, false);
 
         // Sets RecyclerView to populate list of ingredients
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recycler_view);
@@ -31,9 +94,11 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(v.getContext(), recyclerView, this));
 
-        // TODO: Validation of recipeEntry
-        RecipeEntry recipeEntry = (RecipeEntry) getArguments().getSerializable("RecipeEntry");
-        mIngredientRecyclerViewAdapter = new IngredientRecyclerViewAdapter(getContext(), recipeEntry.getIngredients());
+
+
+        // TODO: Testing globally accessed lists
+       // mRecipeEntry =
+        mIngredientRecyclerViewAdapter = new IngredientRecyclerViewAdapter(getContext(), mRecipeEntry.getIngredients());
         recyclerView.setAdapter(mIngredientRecyclerViewAdapter);
 
         // TODO: FAB programming
@@ -51,8 +116,54 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
     @Override
     public void onItemClick(View view, int position) {
-        CheckedTextView ctView = (CheckedTextView) view.findViewWithTag("IngredientCheckedText");
-        ctView.toggle();
+
+        //Log.d(TAG, "onItemClick: Checkbox procedure");
+        CheckedTextView ctView = view.findViewWithTag("IngredientCheckedText");
+        //Ingredient ingredient = mIngredientRecyclerViewAdapter.getIngredient(position);
+        int ingredientIndex = mRecipeEntry.getIngredients().indexOf(mIngredientRecyclerViewAdapter.getIngredient(position));
+        Ingredient ingredient = mRecipeEntry.getIngredients().get(ingredientIndex);
+        Log.d(TAG, "onItemClick: " + ingredient.getChecked());
+        boolean isChecked = ingredient.toggleChecked();
+        Log.d(TAG, "onItemClick: " + isChecked + " " + mIngredientRecyclerViewAdapter.getIngredient(position).getChecked());
+        ctView.setChecked(isChecked);
+        if(!isChecked) {
+            mShoppingList.add(ingredient);
+            Log.d(TAG, "onItemClick: adds to list" + mShoppingList);
+        } else {
+
+            //TODO: Remove ingredients from shoppinglist based on owner
+            int sIndex = mShoppingList.indexOf(ingredient);
+            int fIndex = mShoppingList.lastIndexOf(ingredient);
+
+            if(fIndex >= sIndex && sIndex != -1) {
+                while(sIndex <= fIndex) {
+                    if(mShoppingList.get(sIndex).getOwner() == ingredient.getOwner() && mShoppingList.get(sIndex).getName() == ingredient.getName()) {
+                        mShoppingList.remove(sIndex);
+                        break;
+                    }
+                    else {
+                        sIndex++;
+                    }
+                }
+            }
+        }
+
+
+//        try{
+//            Log.d(TAG, "onItemClick: save data");
+//            mFileOutputStream = new FileOutputStream(getContext().getFilesDir() + APP_DATA);
+//            mObjectOutputStream = new ObjectOutputStream(mFileOutputStream);
+//            mObjectOutputStream.writeObject(mRecipeEntryList);
+//            mObjectOutputStream.writeObject(mShoppingList);
+//            mObjectOutputStream.flush();
+//            mObjectOutputStream.close();
+//            mFileOutputStream.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO: Make sure exception on OOS does not require close on FOS, maybe implement finally block
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -60,4 +171,19 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
     }
 
+    @Override
+    public void onPause() {
+        if (mViewModel.getSavedRecipeEntryList() != mRecipeEntryList) {
+            mViewModel.setUpdatedRecipeEntryList(mRecipeEntryList);
+        }
+        if (mViewModel.getSavedShoppingList() != mShoppingList) {
+            mViewModel.setUpdatedShoppingList(mShoppingList);
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 }

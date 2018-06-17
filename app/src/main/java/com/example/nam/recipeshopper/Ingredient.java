@@ -21,6 +21,7 @@ public class Ingredient implements Serializable{
     final String Digits = "(\\p{Digit}+)";
 
     // TODO: Find better way to parse measurements to appropriate units
+    final static List<Unit> Defaults = Arrays.asList(Unit.CUP, Unit.POUND);
     final static List<String> Teaspoons = Arrays.asList("teaspoon", "teaspoons", "tsp", "tsps");
     final static List<String> Tablespoons = Arrays.asList("tablespoon", "tablespoons", "tbsp", "tbsps");
     final static List<String> Cups = Arrays.asList("cup", "cups", "c", "c.");
@@ -41,9 +42,87 @@ public class Ingredient implements Serializable{
     double mMeasurement = 0;
     String mName = "";
     Unit mUnit = null;
+    String mOwner;
+    private boolean mChecked = true;
 
-    public Ingredient(String unparsed){
-        double whole = 0;
+    public String getOwner() {
+        return mOwner;
+    }
+
+    public void setOwner(String owner) {
+        mOwner = owner;
+    }
+
+
+
+    @Override
+    public boolean equals(Object obj) {
+        return (this.getName().equalsIgnoreCase(((Ingredient) obj).getName()));
+    }
+
+    public void convert() {
+        // Default units are pound for mass and cup for volume.
+        if(this.getUnit() != null) {
+            switch (this.getUnit()) {
+                case TEASPOON:
+                    defaultConvert(Unit.CUP, .0208333, this);
+                    break;
+                case TABLESPOON:
+                    defaultConvert(Unit.CUP, 0.0625, this);
+                    break;
+                case CUP:           //Set when doing metric
+                    break;
+                case QUART:
+                    defaultConvert(Unit.CUP, 4.0, this);
+                    break;
+                case GALLON:
+                    defaultConvert(Unit.CUP, 16.0, this);
+                    break;
+                case LITER:
+                    defaultConvert(Unit.CUP, 4.22675, this);
+                    break;
+                case MILLILITER:
+                    defaultConvert(Unit.CUP, 0.00422675, this);
+                    break;
+
+                case OUNCE:
+                    defaultConvert(Unit.POUND, 0.0625, this);
+                    break;
+                case POUND:         //Set when doing metric
+                    break;
+                case GRAM:
+                    defaultConvert(Unit.POUND, 0.00220462, this);
+                    break;
+                case KILOGRAM:
+                    defaultConvert(Unit.CUP, 2.20462, this);
+                    break;
+            }
+        }
+    }
+
+    private void defaultConvert(Unit unit, double factor, Ingredient ingredient) {
+        ingredient.setUnit(unit);
+        ingredient.setMeasurement(ingredient.getMeasurement() * factor);
+        return;
+    }
+
+    public void add(Ingredient ingredient) {
+        if(this.getUnit() == ingredient.getUnit()) {
+            this.setMeasurement(this.getMeasurement() + ingredient.getMeasurement());
+        } else {
+            ingredient.convert();
+            this.setMeasurement(this.getMeasurement() + ingredient.getMeasurement());
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return mName.hashCode();
+    }
+
+    public Ingredient(String unparsed, String owner){
+        mOwner = owner;
+        mChecked = true;
         String delims = "[ ]+";
         String[] tokens = unparsed.split(delims);
         double runningTotal = 0;
@@ -87,7 +166,11 @@ public class Ingredient implements Serializable{
                 mName += (token + " ");
             }
         }
-        Log.d(TAG, "Ingredient: " + mMeasurement + " " + mUnit + " " + mName);
+        Log.d(TAG, "Ingredient: " + mMeasurement + " " + mUnit + " " + mName + " " + mChecked);
+    }
+
+    public Ingredient(String unparsed) {
+        this(unparsed, null);
     }
 
     public double getMeasurement() {
@@ -112,6 +195,15 @@ public class Ingredient implements Serializable{
 
     public void setUnit(Unit unit) {
         mUnit = unit;
+    }
+
+    public boolean getChecked() {
+        return mChecked;
+    }
+
+    public boolean toggleChecked() {
+        mChecked = !mChecked;
+        return mChecked;
     }
 
     @Override

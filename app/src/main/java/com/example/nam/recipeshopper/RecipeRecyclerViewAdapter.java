@@ -81,6 +81,7 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
     }
 
     public RecipeEntry getRecipeEntry(int position) {
+        if(mRecipeList.get(position) == null) Log.d(TAG, "getRecipeEntry: null" );
         return((mRecipeList != null) && (mRecipeList.size() != 0) ? mRecipeList.get(position) : null);
     }
 }

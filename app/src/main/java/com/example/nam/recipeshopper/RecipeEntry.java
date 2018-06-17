@@ -28,7 +28,22 @@ public class RecipeEntry implements Serializable {
         mTotalTime = null;
         mIngredients = new ArrayList<>();
         mInstructions = new ArrayList<>();
-    };
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof RecipeEntry))
+            return false;
+        if(obj == this)
+            return true;
+
+        return this.getTitle().equals(((RecipeEntry) obj).getTitle());
+    }
+
+    @Override
+    public int hashCode() {
+        return mTitle.hashCode();
+    }
 
     public String getTitle() {
         return mTitle;

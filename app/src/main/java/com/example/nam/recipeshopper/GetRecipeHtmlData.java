@@ -62,7 +62,7 @@ public class GetRecipeHtmlData extends AsyncTask<String, Void, RecipeEntry> impl
             try {
                 Document recipeHTML = Jsoup.parse(data);
                 Elements recipeProcedure = recipeHTML.getElementsByClass("recipe-procedure-text");
-                Elements recipeIngredients = recipeHTML.getElementsByAttributeValue("itemprop", "ingredients");
+                Elements recipeIngredients = recipeHTML.getElementsByAttributeValue("itemprop", "recipeIngredient");
 
                 mRecipeEntry = new RecipeEntry();
 
@@ -70,15 +70,19 @@ public class GetRecipeHtmlData extends AsyncTask<String, Void, RecipeEntry> impl
 
                 mRecipeEntry.setTitle(recipeHTML.getElementsByAttributeValue("itemprop", "name").text());
                 mRecipeEntry.setYield(recipeHTML.getElementsByAttributeValue("itemprop", "recipeYield").text());
-                mRecipeEntry.setTotalTime(recipeHTML.getElementsContainingOwnText("Total Time").first().nextElementSibling().ownText());
-                mRecipeEntry.setActiveTime(recipeHTML.getElementsContainingOwnText("Active Time").first().nextElementSibling().ownText());
+                if(!recipeHTML.getElementsContainingOwnText("Total Time").isEmpty()) {
+                    mRecipeEntry.setTotalTime(recipeHTML.getElementsContainingOwnText("Total Time").first().nextElementSibling().ownText());
+                }
+                if(!recipeHTML.getElementsContainingOwnText("Active Time").isEmpty()) {
+                    mRecipeEntry.setActiveTime(recipeHTML.getElementsContainingOwnText("Active Time").first().nextElementSibling().ownText());
+                }
                 mRecipeEntry.setImageURL(recipeHTML.getElementsByAttributeValue("itemprop", "image").attr("src"));
                 Log.d(TAG, "Title: " + mRecipeEntry.getTitle() + " Yield: " + mRecipeEntry.getYield() + " Total Time: " + mRecipeEntry.getTotalTime() +
                         " Active Time: " + mRecipeEntry.getActiveTime() + "\nImage:" + mRecipeEntry.getImageURL() );
 
                 for(Element ingredient : recipeIngredients) {
                     Log.d(TAG, "Element contains: " + ingredient.ownText() + "\n");
-                    mRecipeEntry.addIngredients(new Ingredient(ingredient.ownText()));
+                    mRecipeEntry.addIngredients(new Ingredient(ingredient.ownText(), mRecipeEntry.getTitle()));
                 }
 
                 for(Element step : recipeProcedure) {

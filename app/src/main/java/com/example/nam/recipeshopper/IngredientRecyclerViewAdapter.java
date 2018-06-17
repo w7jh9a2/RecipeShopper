@@ -24,7 +24,7 @@ public class IngredientRecyclerViewAdapter extends RecyclerView.Adapter<Ingredie
     @NonNull
     @Override
     public IngredientRecyclerViewAdapter.IngredientViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder: starts");
+        //Log.d(TAG, "onCreateViewHolder: starts");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entry_checked_text, parent, false);
         return new IngredientViewHolder(view);
     }
@@ -41,9 +41,10 @@ public class IngredientRecyclerViewAdapter extends RecyclerView.Adapter<Ingredie
             holder.ingredient.setChecked(false);
         } else {
             Ingredient ingredientItem = mIngredientList.get(position);
-            Log.d(TAG, "onBindViewHolder: " + ingredientItem.getName() + " ---> " + position);
+            //Log.d(TAG, "onBindViewHolder: " + ingredientItem.getChecked());
+            //Log.d(TAG, "onBindViewHolder: " + ingredientItem.getName() + " ---> " + position);
             holder.ingredient.setText(ingredientItem.getMeasurement() + " " + ingredientItem.getUnit() + " " + ingredientItem.getName());
-            holder.ingredient.setChecked(true);
+            holder.ingredient.setChecked(ingredientItem.getChecked());
             holder.ingredient.setTag("IngredientCheckedText");
         }
 
@@ -53,8 +54,13 @@ public class IngredientRecyclerViewAdapter extends RecyclerView.Adapter<Ingredie
         return((mIngredientList != null) && (mIngredientList.size() != 0) ? mIngredientList.get(position) : null);
     }
 
+    void loadNewData(List<Ingredient> newIngredients) {
+        mIngredientList = newIngredients;
+        notifyDataSetChanged();
+    }
+
     static class IngredientViewHolder extends RecyclerView.ViewHolder {
-        private static final String TAG = "IngredientViewHolder";
+        //private static final String TAG = "IngredientViewHolder";
         AppCompatCheckedTextView ingredient = null;
 
         public IngredientViewHolder(View itemView) {

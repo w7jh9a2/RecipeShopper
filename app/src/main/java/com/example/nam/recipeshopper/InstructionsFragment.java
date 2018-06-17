@@ -1,5 +1,7 @@
 package com.example.nam.recipeshopper;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,18 +10,54 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+
+import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
+
 public class InstructionsFragment extends Fragment implements RecyclerItemClickListener.OnRecyclerClickListener {
     private static final String TAG = "InstructionsFragment";
     private InstructionRecyclerViewAdapter mInstructionRecyclerViewAdapter;
+    private List<RecipeEntry> mRecipeEntryList;
+    private List<Ingredient> mShoppingList;
+    private FileOutputStream mFileOutputStream;
+    private ObjectOutputStream mObjectOutputStream;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+
+        DataShareViewModel mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
+
+        final Observer<List<RecipeEntry>> recipeObserver = new Observer<List<RecipeEntry>>() {
+            @Override
+            public void onChanged(@Nullable List<RecipeEntry> recipeEntries) {
+                mRecipeEntryList = recipeEntries;
+            }
+        };
+
+        final Observer<List<Ingredient>> shoppingObserver = new Observer<List<Ingredient>>() {
+            @Override
+            public void onChanged(@Nullable List<Ingredient> ingredients) {
+                mShoppingList = ingredients;
+            }
+        };
+
+        mViewModel.getUpdatedRecipeEntryList().observe(this, recipeObserver);
+        mViewModel.getUpdatedShoppingList().observe(this, shoppingObserver);
+
+        super.onCreate(savedInstanceState);
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.activity_ingredients, container, false);
+        View v = inflater.inflate(R.layout.fragment_recipe, container, false);
 
         // Sets RecyclerView to populate list of ingredients
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recycler_view);
@@ -28,7 +66,8 @@ public class InstructionsFragment extends Fragment implements RecyclerItemClickL
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(v.getContext(), recyclerView, this));
 
         // TODO: Validation of recipeEntry
-        RecipeEntry recipeEntry = (RecipeEntry) getArguments().getSerializable("RecipeEntry");
+        RecipeEntry recipeEntry = (RecipeEntry) getArguments().getSerializable(RECIPE_TRANSFER);
+        Log.d(TAG, "onCreateView: " + recipeEntry);
         mInstructionRecyclerViewAdapter = new InstructionRecyclerViewAdapter(getContext(), recipeEntry.getInstructions());
         recyclerView.setAdapter(mInstructionRecyclerViewAdapter);
 

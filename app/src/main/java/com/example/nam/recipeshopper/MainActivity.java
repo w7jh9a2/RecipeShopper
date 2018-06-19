@@ -65,9 +65,13 @@ public class MainActivity extends BaseActivity{
         mViewModelReference = mViewModel;
         if (savedRecipeEntryList != null) {
             mViewModel.setUpdatedRecipeEntryList(savedRecipeEntryList);
+        } else {
+            mViewModel.setUpdatedRecipeEntryList(new ArrayList<RecipeEntry>());
         }
         if (savedShoppingList != null) {
             mViewModel.setUpdatedShoppingList(savedShoppingList);
+        } else {
+            mViewModel.setUpdatedShoppingList(new ArrayList<Ingredient>());
         }
 
 

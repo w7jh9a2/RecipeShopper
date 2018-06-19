@@ -50,6 +50,7 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
         // Gets ViewModel from MainActivity, which is a single ViewModel instance shared between the fragments of Main Activity
         mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
+        Log.d(TAG, "onCreate: " + mViewModel);
 
         final Observer<List<RecipeEntry>> recipeObserver = new Observer<List<RecipeEntry>>() {
             @Override
@@ -63,6 +64,7 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
             @Override
             public void onChanged(@Nullable List<Ingredient> ingredients) {
                 mShoppingList = ingredients;
+                Log.d(TAG, "onChanged: mshoppinglist changed");
             }
         };
 
@@ -72,13 +74,15 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
         // TODO properly validate lists after opening
         mRecipeEntryList = mViewModel.getSavedRecipeEntryList();
         mShoppingList = mViewModel.getSavedShoppingList();
+        Log.d(TAG, "onCreate: savedshoppinglist post mviewmodel " + mViewModel.getSavedShoppingList() + " " + mShoppingList);
         if(mShoppingList == null) {
             mShoppingList = new ArrayList<>();
         }
+        Log.d(TAG, "onCreate: mshoppinglist" + mShoppingList);
 
         Log.d(TAG, "onCreate: recipeEntry = " + (mRecipeEntryList.indexOf(mRecipeEntry)));
 
-        // TODO: Check if necessary
+        // TODO: Check if necessary, potentially move mRecipeEntry to RecipeActivity
         mRecipeEntryIndex = mRecipeEntryList.indexOf(mRecipeEntry);
         mRecipeEntry = mRecipeEntryList.get(mRecipeEntryIndex);
     }
@@ -117,18 +121,22 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
     @Override
     public void onItemClick(View view, int position) {
 
+        Log.d(TAG, "onItemClick: " + mShoppingList + " " + mViewModel.getSavedShoppingList());
+
         //Log.d(TAG, "onItemClick: Checkbox procedure");
         CheckedTextView ctView = view.findViewWithTag("IngredientCheckedText");
-        //Ingredient ingredient = mIngredientRecyclerViewAdapter.getIngredient(position);
-        int ingredientIndex = mRecipeEntry.getIngredients().indexOf(mIngredientRecyclerViewAdapter.getIngredient(position));
-        Ingredient ingredient = mRecipeEntry.getIngredients().get(ingredientIndex);
+        Ingredient ingredient = mIngredientRecyclerViewAdapter.getIngredient(position);
+        //int ingredientIndex = mRecipeEntry.getIngredients().indexOf(mIngredientRecyclerViewAdapter.getIngredient(position));
+        //Ingredient ingredient = mRecipeEntry.getIngredients().get(ingredientIndex);
         Log.d(TAG, "onItemClick: " + ingredient.getChecked());
         boolean isChecked = ingredient.toggleChecked();
         Log.d(TAG, "onItemClick: " + isChecked + " " + mIngredientRecyclerViewAdapter.getIngredient(position).getChecked());
         ctView.setChecked(isChecked);
+        Log.d(TAG, "onItemClick: " + mShoppingList + " " + mViewModel.getSavedShoppingList());
         if(!isChecked) {
             mShoppingList.add(ingredient);
             Log.d(TAG, "onItemClick: adds to list" + mShoppingList);
+            mViewModel.setUpdatedShoppingList(mShoppingList);
         } else {
 
             //TODO: Remove ingredients from shoppinglist based on owner
@@ -137,8 +145,9 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
             if(fIndex >= sIndex && sIndex != -1) {
                 while(sIndex <= fIndex) {
-                    if(mShoppingList.get(sIndex).getOwner() == ingredient.getOwner() && mShoppingList.get(sIndex).getName() == ingredient.getName()) {
+                    if(mShoppingList.get(sIndex).getOwner() == ingredient.getOwner() && mShoppingList.get(sIndex).equals(ingredient)) {
                         mShoppingList.remove(sIndex);
+                        mViewModel.setUpdatedShoppingList(mShoppingList);
                         break;
                     }
                     else {

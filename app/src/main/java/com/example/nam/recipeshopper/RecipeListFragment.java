@@ -37,8 +37,8 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
                 RecyclerItemClickListener.OnRecyclerClickListener {
     private static final String TAG = "RecipeListFragment";
     private RecipeRecyclerViewAdapter mRecipeRecyclerViewAdapter;
-    private List<RecipeEntry> mRecipeEntryList = new ArrayList<>();
-    private List<Ingredient> mShoppingList = new ArrayList<>();
+    private List<RecipeEntry> mRecipeEntryList;
+    private List<Ingredient> mShoppingList;
     private FileOutputStream mFileOutputStream;
     private ObjectOutputStream mObjectOutputStream;
     private boolean mVisible;
@@ -94,8 +94,7 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
 
         mViewModel.getUpdatedRecipeEntryList().observe(this, recipeObserver);
         mViewModel.getUpdatedShoppingList().observe(this, shoppingObserver);
-        saveData.putSerializable(RECIPE_LIST_TRANSFER, (Serializable) mRecipeEntryList);
-        saveData.putSerializable(SHOPPING_TRANSFER, (Serializable) mShoppingList);
+        updateSaveData();
     }
 
     @Nullable
@@ -146,6 +145,7 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
                                 if(!etName.getText().toString().equals("")){
                                     GetRecipeHtmlData getRecipeHtmlData = new GetRecipeHtmlData(mCallback);
                                     getRecipeHtmlData.execute(etName.getText().toString());
+                                    updateSaveData();
                                 } else {
                                     Toast.makeText(getContext(), "Type recipe URL above.", Toast.LENGTH_SHORT).show();
                                 }
@@ -198,6 +198,11 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
         }
 
         Log.d(TAG, "onDataAvailable: ends");
+    }
+
+    private void updateSaveData() {
+        saveData.putSerializable(RECIPE_LIST_TRANSFER, (Serializable) mRecipeEntryList);
+        saveData.putSerializable(SHOPPING_TRANSFER, (Serializable) mShoppingList);
     }
 
     @Override

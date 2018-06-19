@@ -45,6 +45,7 @@ public class InstructionsFragment extends Fragment implements RecyclerItemClickL
             @Override
             public void onChanged(@Nullable List<Ingredient> ingredients) {
                 mShoppingList = ingredients;
+                Log.d(TAG, "onChanged: mshoppinglist changed");
             }
         };
 

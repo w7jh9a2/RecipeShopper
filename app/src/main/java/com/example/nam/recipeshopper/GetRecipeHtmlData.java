@@ -82,7 +82,7 @@ public class GetRecipeHtmlData extends AsyncTask<String, Void, RecipeEntry> impl
 
                 for(Element ingredient : recipeIngredients) {
                     Log.d(TAG, "Element contains: " + ingredient.ownText() + "\n");
-                    mRecipeEntry.addIngredients(new Ingredient(ingredient.ownText(), mRecipeEntry.getTitle()));
+                    mRecipeEntry.addIngredients(new Ingredient(ingredient.ownText(), mRecipeEntry));
                 }
 
                 for(Element step : recipeProcedure) {

@@ -30,6 +30,7 @@ import static com.example.nam.recipeshopper.BaseActivity.RECIPE_LIST_TRANSFER;
 import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
 import static com.example.nam.recipeshopper.BaseActivity.SHOPPING_TRANSFER;
 import static com.example.nam.recipeshopper.Ingredient.Defaults;
+import static com.example.nam.recipeshopper.Ingredient.Pounds;
 
 public class ShoppingListFragment extends BaseFragment implements RecyclerItemClickListener.OnRecyclerClickListener {
     private static final String TAG = "ShoppingListFragment";
@@ -40,6 +41,7 @@ public class ShoppingListFragment extends BaseFragment implements RecyclerItemCl
     private static List<Ingredient> mConsolidatedList = new ArrayList<>();
     private FileOutputStream mFileOutputStream;
     private ObjectOutputStream mObjectOutputStream;
+    private DataShareViewModel mViewModel;
 
 
     @Override
@@ -47,7 +49,7 @@ public class ShoppingListFragment extends BaseFragment implements RecyclerItemCl
         super.onCreate(savedInstanceState);
 
         // Gets ViewModel from MainActivity, which is a single ViewModel instance shared between the fragments of Main Activity
-        DataShareViewModel mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
+        mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
 
         final Observer<List<RecipeEntry>> recipeObserver = new Observer<List<RecipeEntry>>() {
             @Override
@@ -60,7 +62,9 @@ public class ShoppingListFragment extends BaseFragment implements RecyclerItemCl
             @Override
             public void onChanged(@Nullable List<Ingredient> ingredients) {
                 mShoppingList = ingredients;
-                consolidate(mShoppingList);
+                if (mShoppingList != null) {
+                    consolidate(mShoppingList);
+                }
             }
         };
 
@@ -95,13 +99,13 @@ public class ShoppingListFragment extends BaseFragment implements RecyclerItemCl
             }
         });
 
-        //load save data
-        Bundle saveData = getArguments();
-        if(saveData != null) {
-            mRecipeEntryList = (List<RecipeEntry>) saveData.getSerializable(RECIPE_LIST_TRANSFER);
-            mShoppingList = (List<Ingredient>) saveData.getSerializable(SHOPPING_TRANSFER);
-            consolidate(mShoppingList);
-        }
+        // TODO: Remove
+//        Bundle saveData = getArguments();
+//        if(saveData != null) {
+//            mRecipeEntryList = (List<RecipeEntry>) saveData.getSerializable(RECIPE_LIST_TRANSFER);
+//            mShoppingList = (List<Ingredient>) saveData.getSerializable(SHOPPING_TRANSFER);
+//            consolidate(mShoppingList);
+//        }
 
         return v;
     }
@@ -109,18 +113,18 @@ public class ShoppingListFragment extends BaseFragment implements RecyclerItemCl
     @Override
     public void onResume() {
         super.onResume();
-        refresh();
-git
+//        refresh();
 
     }
 
-    private void refresh() {
-        if(load()) {
-            mRecipeEntryList = getSavedRecipeEntryList();
-            mShoppingList = getSavedShoppingList();
-            consolidate(mShoppingList);
-        }
-    }
+    // TODO: may not be necessary with ViewModel
+//    private void refresh() {
+//        if(load()) {
+//            mRecipeEntryList = getSavedRecipeEntryList();
+//            mShoppingList = getSavedShoppingList();
+//            consolidate(mShoppingList);
+//        }
+//    }
 
     @Override
     public void onItemClick(View view, int position) {
@@ -135,40 +139,48 @@ git
         // to here
         if(isChecked) {
             int index = mShoppingList.indexOf(ingredient);
-            while(index != -1)
-            {
+            while(index != -1) {
                 // TODO: Need to find object in mIngredient List in the owning RecipeEntry to toggle to CT to true
-                if(mRecipeEntryList.contains(mShoppingList.get(index).getOwner())) {
-                    int tempIndex = mRecipeEntryList.get(mRecipeEntryList.indexOf(mShoppingList.get(index).getOwner())).getIngredients().indexOf(ingredient);
-                    if (tempIndex != -1) {
-                        mRecipeEntryList.get(mRecipeEntryList.indexOf(mShoppingList.get(index).getOwner())).getIngredients().get(tempIndex).toggleChecked();
+                int recipeIndex = mRecipeEntryList.indexOf(mShoppingList.get(index).getOwner());
+                if(recipeIndex != -1) {
+                    for (Ingredient ingredientIterator : mRecipeEntryList.get(recipeIndex).getIngredients()) {
+                        if(ingredientIterator.equals(ingredient) && ingredientIterator.getChecked() == false) {
+                            ingredientIterator.toggleChecked();
+                        }
                     }
+//                    int tempIndex = mRecipeEntryList.get(mRecipeEntryList.indexOf(mShoppingList.get(index).getOwner())).getIngredients().indexOf(ingredient);
+//                    if (tempIndex != -1) {
+//                        mRecipeEntryList.get(mRecipeEntryList.indexOf(mShoppingList.get(index).getOwner())).getIngredients().get(tempIndex).toggleChecked();
+//                    }
                 }
 
                 mShoppingList.remove(index);
                 index = mShoppingList.indexOf(ingredient);
             }
+
+            // Update mViewModel to synchronize data
+            mViewModel.setUpdatedShoppingList(mShoppingList);
+            mViewModel.setUpdatedRecipeEntryList(mRecipeEntryList);
+
         }
 
-        // Create function from here
-        Log.d(TAG, "onItemClick: save data");
-        try{
-            mFileOutputStream = new FileOutputStream(getContext().getFilesDir() + APP_DATA);
-            mObjectOutputStream = new ObjectOutputStream(mFileOutputStream);
-            mObjectOutputStream.writeObject(mRecipeEntryList);
-            mObjectOutputStream.writeObject(mShoppingList);
-            mObjectOutputStream.flush();
-            mObjectOutputStream.close();
-            mFileOutputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO: Make sure exception on OOS does not require close on FOS, maybe implement finally block
-            e.printStackTrace();
-        }
-        // to here
-
-        consolidate(mShoppingList);
+//        // Create function from here
+//        Log.d(TAG, "onItemClick: save data");
+//        try{
+//            mFileOutputStream = new FileOutputStream(getContext().getFilesDir() + APP_DATA);
+//            mObjectOutputStream = new ObjectOutputStream(mFileOutputStream);
+//            mObjectOutputStream.writeObject(mRecipeEntryList);
+//            mObjectOutputStream.writeObject(mShoppingList);
+//            mObjectOutputStream.flush();
+//            mObjectOutputStream.close();
+//            mFileOutputStream.close();
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO: Make sure exception on OOS does not require close on FOS, maybe implement finally block
+//            e.printStackTrace();
+//        }
+//        // to here
     }
 
     @Override
@@ -178,16 +190,18 @@ git
 
     private void consolidate(List<Ingredient> list) {
         // TODO: Multiple shopping list implementation: List<Ingredient> tempList = mConsolidatedList;
-        for(Ingredient ingredient: list) {
+        mConsolidatedList = new ArrayList<>();
+        for(Ingredient ingredient : list) {
             int index = mConsolidatedList.indexOf(ingredient);
             if(index != -1) {
-                mConsolidatedList.get(index).add(ingredient);
+                mConsolidatedList.get(index).add(new Ingredient(ingredient));
 
             } else {
+                Ingredient tempIngredient = new Ingredient(ingredient);
                 if(!Defaults.contains(ingredient.getUnit())){
-                    ingredient.convert();
+                    tempIngredient.convert();
                 }
-                mConsolidatedList.add(ingredient);
+                mConsolidatedList.add(tempIngredient);
             }
         }
 

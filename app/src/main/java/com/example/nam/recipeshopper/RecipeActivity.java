@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeActivity extends BaseActivity {
@@ -62,15 +63,25 @@ public class RecipeActivity extends BaseActivity {
             Log.d(TAG, "onCreate: Loaded save data for updating save");
             savedRecipeEntryList = (List<RecipeEntry>) saveData.getSerializable(RECIPE_LIST_TRANSFER);
             savedShoppingList = (List<Ingredient>) saveData.getSerializable(SHOPPING_TRANSFER);
+            Log.d(TAG, "onCreate: SaveData:" + savedRecipeEntryList + " " + savedShoppingList);
         }
 
         final DataShareViewModel mViewModel = ViewModelProviders.of(this).get(DataShareViewModel.class);
         mViewModelReference = mViewModel;
-        if(savedRecipeEntryList != null && savedShoppingList != null) {
+
+        if(savedRecipeEntryList != null) {
             mViewModel.setUpdatedRecipeEntryList(savedRecipeEntryList);
-            mViewModel.setUpdatedShoppingList(savedShoppingList);
+        } else {
+            mViewModel.setUpdatedRecipeEntryList(new ArrayList<RecipeEntry>());
         }
 
+        if (savedShoppingList != null) {
+            mViewModel.setUpdatedShoppingList(savedShoppingList);
+        } else {
+            mViewModel.setUpdatedShoppingList(new ArrayList<Ingredient>());
+        }
+        Log.d(TAG, "onCreate: savedShoppingList post viewModel " + mViewModel.getSavedShoppingList());
+        Log.d(TAG, "onCreate: " + mViewModel);
 
         final Observer<List<RecipeEntry>> recipeObserver = new Observer<List<RecipeEntry>>() {
             @Override
@@ -83,6 +94,8 @@ public class RecipeActivity extends BaseActivity {
             @Override
             public void onChanged(@Nullable List<Ingredient> ingredients) {
                 savedShoppingList = ingredients;
+                Log.d(TAG, "onChanged: savedshoppinglist changed");
+                Log.d(TAG, "onChanged: " + mViewModel.getSavedShoppingList());
             }
         };
 
@@ -139,10 +152,10 @@ public class RecipeActivity extends BaseActivity {
     @Override
     protected void onResume() {
         load();
-        if (savedRecipeEntryList != mViewModelReference.getSavedRecipeEntryList()) {
+        if (savedRecipeEntryList != mViewModelReference.getSavedRecipeEntryList() && savedRecipeEntryList != null) {
             mViewModelReference.setUpdatedRecipeEntryList(savedRecipeEntryList);
         }
-        if (savedShoppingList != mViewModelReference.getSavedShoppingList()) {
+        if (savedShoppingList != mViewModelReference.getSavedShoppingList() && savedShoppingList != null) {
             mViewModelReference.setUpdatedShoppingList(savedShoppingList);
         }
         super.onResume();

@@ -42,14 +42,14 @@ public class Ingredient implements Serializable{
     double mMeasurement = 0;
     String mName = "";
     Unit mUnit = null;
-    String mOwner;
+    private RecipeEntry mOwner = null;
     private boolean mChecked = true;
 
-    public String getOwner() {
+    public RecipeEntry getOwner() {
         return mOwner;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(RecipeEntry owner) {
         mOwner = owner;
     }
 
@@ -120,7 +120,7 @@ public class Ingredient implements Serializable{
         return mName.hashCode();
     }
 
-    public Ingredient(String unparsed, String owner){
+    public Ingredient(String unparsed, RecipeEntry owner){
         mOwner = owner;
         mChecked = true;
         String delims = "[ ]+";
@@ -173,6 +173,13 @@ public class Ingredient implements Serializable{
         this(unparsed, null);
     }
 
+    public Ingredient (Ingredient ingredient) {
+        this(ingredient.mName, ingredient.mOwner);
+        this.setMeasurement(ingredient.getMeasurement());
+        this.setUnit(ingredient.getUnit());
+        this.setChecked(ingredient.getChecked());
+    }
+
     public double getMeasurement() {
         return mMeasurement;
     }
@@ -199,6 +206,10 @@ public class Ingredient implements Serializable{
 
     public boolean getChecked() {
         return mChecked;
+    }
+
+    public void setChecked(boolean isChecked) {
+        mChecked = isChecked;
     }
 
     public boolean toggleChecked() {

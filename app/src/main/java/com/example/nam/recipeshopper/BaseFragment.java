@@ -47,19 +47,4 @@ public class BaseFragment extends Fragment {
         return success;
     }
 
-    public List<RecipeEntry> getSavedRecipeEntryList() {
-        return savedRecipeEntryList;
-    }
-
-    public void setSavedRecipeEntryList(List<RecipeEntry> savedRecipeEntryList) {
-        this.savedRecipeEntryList = savedRecipeEntryList;
-    }
-
-    public List<Ingredient> getSavedShoppingList() {
-        return savedShoppingList;
-    }
-
-    public void setSavedShoppingList(List<Ingredient> savedShoppingList) {
-        this.savedShoppingList = savedShoppingList;
-    }
 }

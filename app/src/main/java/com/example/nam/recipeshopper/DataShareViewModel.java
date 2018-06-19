@@ -4,7 +4,6 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.support.annotation.NonNull;
 
 import java.io.FileInputStream;
@@ -12,12 +11,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.util.List;
 
 import static com.example.nam.recipeshopper.BaseActivity.APP_DATA;
-import static com.example.nam.recipeshopper.BaseActivity.RECIPE_LIST_TRANSFER;
-import static com.example.nam.recipeshopper.BaseActivity.SHOPPING_TRANSFER;
 
 public class DataShareViewModel extends AndroidViewModel {
     private FileInputStream mFileInputStream;

@@ -60,7 +60,7 @@ public class IngredientRecyclerViewAdapter extends RecyclerView.Adapter<Ingredie
     }
 
     static class IngredientViewHolder extends RecyclerView.ViewHolder {
-        //private static final String TAG = "IngredientViewHolder";
+        private static final String TAG = "IngredientViewHolder";
         AppCompatCheckedTextView ingredient = null;
 
         public IngredientViewHolder(View itemView) {

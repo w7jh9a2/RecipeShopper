@@ -25,7 +25,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
 
     @Override
     public RecipeRecyclerViewAdapter.RecipeViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d(TAG, "onCreateViewHolder: new view requested");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.entry_list, parent, false);
         return new RecipeViewHolder(view);
     }
@@ -38,7 +37,6 @@ public class RecipeRecyclerViewAdapter extends RecyclerView.Adapter<RecipeRecycl
             holder.title.setText("No recipes");
         } else {
             RecipeEntry recipeEntry = mRecipeList.get(position);
-            Log.d(TAG, "onBindViewHolder: " + recipeEntry.getTitle() + "---> " + position);
             Picasso.get().load(recipeEntry.getImageURL())
                     .error(R.drawable.placeholder)
                     .placeholder(R.drawable.placeholder)

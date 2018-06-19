@@ -2,19 +2,14 @@ package com.example.nam.recipeshopper;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.View;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,7 +18,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,7 +96,7 @@ public class RecipeActivity extends BaseActivity {
         mViewModel.getUpdatedRecipeEntryList().observe(this, recipeObserver);
         mViewModel.getUpdatedShoppingList().observe(this, shoppingObserver);
 
-        ViewPager pager = (ViewPager) findViewById(R.id.viewPager);
+        ViewPager pager = findViewById(R.id.viewPager);
         pager.setAdapter(new RecipePagerAdapter((getSupportFragmentManager())));
 
 
@@ -118,9 +112,6 @@ public class RecipeActivity extends BaseActivity {
         public Fragment getItem(int position) {
             Bundle bundle = new Bundle();
             bundle.putSerializable(RECIPE_TRANSFER, mRecipeEntry);
-            // TODO: Remove if viewmodel works
-//            bundle.putSerializable(RECIPE_LIST_TRANSFER, saveData.getSerializable(RECIPE_LIST_TRANSFER));
-//            bundle.putSerializable(SHOPPING_TRANSFER, saveData.getSerializable(SHOPPING_TRANSFER));
             switch(position) {
                 case 0:
                     IngredientsFragment ingredientsFragment = new IngredientsFragment();
@@ -184,10 +175,6 @@ public class RecipeActivity extends BaseActivity {
             mObjectInputStream = new ObjectInputStream(mFileInputStream);
             savedRecipeEntryList = (List<RecipeEntry>) mObjectInputStream.readObject();
             savedShoppingList = (List<Ingredient>) mObjectInputStream.readObject();
-
-            // TODO : Clear if viewmodel works
-//            bundle.putSerializable(RECIPE_LIST_TRANSFER, (Serializable) savedRecipeEntryList);
-//            bundle.putSerializable(SHOPPING_TRANSFER, (Serializable) savedShoppingList);
             mObjectInputStream.close();
             mFileInputStream.close();
         } catch (FileNotFoundException e) {

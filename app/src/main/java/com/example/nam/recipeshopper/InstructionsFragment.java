@@ -15,8 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.List;
 
 import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
@@ -26,8 +24,6 @@ public class InstructionsFragment extends Fragment implements RecyclerItemClickL
     private InstructionRecyclerViewAdapter mInstructionRecyclerViewAdapter;
     private List<RecipeEntry> mRecipeEntryList;
     private List<Ingredient> mShoppingList;
-    private FileOutputStream mFileOutputStream;
-    private ObjectOutputStream mObjectOutputStream;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

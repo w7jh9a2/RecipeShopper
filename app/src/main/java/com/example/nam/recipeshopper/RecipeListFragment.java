@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,15 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.nam.recipeshopper.BaseActivity.APP_DATA;
 import static com.example.nam.recipeshopper.BaseActivity.RECIPE_LIST_TRANSFER;
 import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
 import static com.example.nam.recipeshopper.BaseActivity.SHOPPING_TRANSFER;
@@ -39,8 +32,6 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
     private RecipeRecyclerViewAdapter mRecipeRecyclerViewAdapter;
     private List<RecipeEntry> mRecipeEntryList;
     private List<Ingredient> mShoppingList;
-    private FileOutputStream mFileOutputStream;
-    private ObjectOutputStream mObjectOutputStream;
     private boolean mVisible;
     private Bundle saveData = new Bundle();
 
@@ -49,20 +40,6 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Viewmodel passing reference to main activity.
-
-
-        // TODO: Remove if viewmodel works
-//        saveData = getArguments();
-//        if(saveData != null) {
-//            mRecipeEntryList = (List<RecipeEntry>) saveData.getSerializable(RECIPE_LIST_TRANSFER);
-//            mShoppingList = (List<Ingredient>) saveData.getSerializable(SHOPPING_TRANSFER);
-//        } else {
-//            saveData = new Bundle();
-//            mRecipeEntryList = new ArrayList<>();
-//            mShoppingList = new ArrayList<>();
-//        }
 
         // Gets ViewModel from MainActivity, which is a single ViewModel instance shared between the fragments of Main Activity
         mViewModel = ViewModelProviders.of(getActivity()).get(DataShareViewModel.class);
@@ -100,7 +77,6 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: starts");
         View v = inflater.inflate(R.layout.activity_main, container, false);
         super.onCreate(savedInstanceState);
 
@@ -130,12 +106,9 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
         addRecipeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d(TAG, "onClick: starts");
-
                 // Inline dialog builder, if using this AddRecipeDialogFragment class can be removed
                 LayoutInflater inflater = LayoutInflater.from(getContext());
                 final View addRecipeView = inflater.inflate(R.layout.dialog_addrecipe, null);
-
                 final TextView etName = (EditText) addRecipeView.findViewById(R.id.recipeURLText);
                 AlertDialog dialog = new AlertDialog.Builder(getContext())
                         .setView(addRecipeView)
@@ -162,7 +135,6 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
 
     @Override
     public void onDataAvailable(RecipeEntry newEntry, DownloadStatus status) {
-        Log.d(TAG, "onDataAvailable: starts");
 
         if(status == DownloadStatus.OK) {
             if(!mVisible) {
@@ -173,41 +145,23 @@ public class RecipeListFragment extends Fragment implements GetRecipeHtmlData.On
             mRecipeEntryList.add(newEntry);
             mViewModel.setUpdatedRecipeEntryList(mRecipeEntryList);
 
-            // TODO: Remove if viewmodel works
-//            mRecipeRecyclerViewAdapter.loadNewData(mRecipeEntryList);
-
-//            Log.d(TAG, "onDataAvailable: adds entry to save file");
-//            saveData.putSerializable(RECIPE_LIST_TRANSFER, (Serializable) mRecipeEntryList);
-//            try{
-//                mFileOutputStream = new FileOutputStream(getContext().getFilesDir() + APP_DATA);
-//                mObjectOutputStream = new ObjectOutputStream(mFileOutputStream);
-//                mObjectOutputStream.writeObject(mRecipeEntryList);
-//                mObjectOutputStream.writeObject(mShoppingList);
-//                mObjectOutputStream.flush();
-//                mObjectOutputStream.close();
-//                mFileOutputStream.close();
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            } catch (IOException e) {
-//                // TODO: Make sure exception on OOS does not require close on FOS, maybe implement finally block
-//                e.printStackTrace();
-//            }
         } else {
-            // download or processing failed
-            Log.e(TAG, "onDataAvailable: failed with status " + status);
+            // TODO: download or processing failed
         }
 
-        Log.d(TAG, "onDataAvailable: ends");
     }
 
     private void updateSaveData() {
+
+        // updateSaveData() updates data that is used to initialize RecipeActivity when data is changed
         saveData.putSerializable(RECIPE_LIST_TRANSFER, (Serializable) mRecipeEntryList);
         saveData.putSerializable(SHOPPING_TRANSFER, (Serializable) mShoppingList);
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        Log.d(TAG, "onItemClick: starts " + position + " " + mRecipeRecyclerViewAdapter.getRecipeEntry(position).getClass());
+
+        // Select a RecipeEntry to view recipe's ingredients and instructions
         Intent intent = new Intent(getContext(), RecipeActivity.class);
         intent.putExtra(RECIPE_TRANSFER, mRecipeRecyclerViewAdapter.getRecipeEntry(position));
         intent.putExtras(saveData);

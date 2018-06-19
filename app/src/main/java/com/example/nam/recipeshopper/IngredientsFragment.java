@@ -16,17 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.nam.recipeshopper.BaseActivity.APP_DATA;
-import static com.example.nam.recipeshopper.BaseActivity.RECIPE_LIST_TRANSFER;
 import static com.example.nam.recipeshopper.BaseActivity.RECIPE_TRANSFER;
-import static com.example.nam.recipeshopper.BaseActivity.SHOPPING_TRANSFER;
 
 public class IngredientsFragment extends Fragment implements RecyclerItemClickListener.OnRecyclerClickListener{
     private static final String TAG = "IngredientsFragment";
@@ -34,8 +27,6 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
     private IngredientRecyclerViewAdapter mIngredientRecyclerViewAdapter;
     private List<RecipeEntry> mRecipeEntryList;
     private List<Ingredient> mShoppingList;
-    private FileOutputStream mFileOutputStream;
-    private ObjectOutputStream mObjectOutputStream;
     private RecipeEntry mRecipeEntry;
     private int mRecipeEntryIndex;
     private DataShareViewModel mViewModel;
@@ -78,9 +69,6 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
         if(mShoppingList == null) {
             mShoppingList = new ArrayList<>();
         }
-        Log.d(TAG, "onCreate: mshoppinglist" + mShoppingList);
-
-        Log.d(TAG, "onCreate: recipeEntry = " + (mRecipeEntryList.indexOf(mRecipeEntry)));
 
         // TODO: Check if necessary, potentially move mRecipeEntry to RecipeActivity
         mRecipeEntryIndex = mRecipeEntryList.indexOf(mRecipeEntry);
@@ -95,13 +83,8 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
         // Sets RecyclerView to populate list of ingredients
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(v.getContext()));
-
         recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(v.getContext(), recyclerView, this));
 
-
-
-        // TODO: Testing globally accessed lists
-       // mRecipeEntry =
         mIngredientRecyclerViewAdapter = new IngredientRecyclerViewAdapter(getContext(), mRecipeEntry.getIngredients());
         recyclerView.setAdapter(mIngredientRecyclerViewAdapter);
 
@@ -120,22 +103,13 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
 
     @Override
     public void onItemClick(View view, int position) {
-
-        Log.d(TAG, "onItemClick: " + mShoppingList + " " + mViewModel.getSavedShoppingList());
-
-        //Log.d(TAG, "onItemClick: Checkbox procedure");
+        // Takes selected ingredient and adds/removes from the ShoppingList based on the boolean member in the ingredient
         CheckedTextView ctView = view.findViewWithTag("IngredientCheckedText");
         Ingredient ingredient = mIngredientRecyclerViewAdapter.getIngredient(position);
-        //int ingredientIndex = mRecipeEntry.getIngredients().indexOf(mIngredientRecyclerViewAdapter.getIngredient(position));
-        //Ingredient ingredient = mRecipeEntry.getIngredients().get(ingredientIndex);
-        Log.d(TAG, "onItemClick: " + ingredient.getChecked());
         boolean isChecked = ingredient.toggleChecked();
-        Log.d(TAG, "onItemClick: " + isChecked + " " + mIngredientRecyclerViewAdapter.getIngredient(position).getChecked());
         ctView.setChecked(isChecked);
-        Log.d(TAG, "onItemClick: " + mShoppingList + " " + mViewModel.getSavedShoppingList());
         if(!isChecked) {
             mShoppingList.add(ingredient);
-            Log.d(TAG, "onItemClick: adds to list" + mShoppingList);
             mViewModel.setUpdatedShoppingList(mShoppingList);
         } else {
 
@@ -156,23 +130,6 @@ public class IngredientsFragment extends Fragment implements RecyclerItemClickLi
                 }
             }
         }
-
-
-//        try{
-//            Log.d(TAG, "onItemClick: save data");
-//            mFileOutputStream = new FileOutputStream(getContext().getFilesDir() + APP_DATA);
-//            mObjectOutputStream = new ObjectOutputStream(mFileOutputStream);
-//            mObjectOutputStream.writeObject(mRecipeEntryList);
-//            mObjectOutputStream.writeObject(mShoppingList);
-//            mObjectOutputStream.flush();
-//            mObjectOutputStream.close();
-//            mFileOutputStream.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            // TODO: Make sure exception on OOS does not require close on FOS, maybe implement finally block
-//            e.printStackTrace();
-//        }
     }
 
     @Override

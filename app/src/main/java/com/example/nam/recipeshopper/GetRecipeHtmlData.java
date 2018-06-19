@@ -91,18 +91,6 @@ public class GetRecipeHtmlData extends AsyncTask<String, Void, RecipeEntry> impl
                     mRecipeEntry.addInstructions(step.text());
                 }
 
-//                for(int i = 0; i < itempropsAttributes.size(); i++) {
-//                    String attributeValue = itempropsAttributes.get(i);
-//                    switch(attributeValue) {
-//                        case "name":
-//                            mRecipeEntry.setTitle(itempropsContents.get(i));
-//                            break;
-//                        default:
-//                            break;
-//                    }
-
-//                }
-
 
             } catch(Selector.SelectorParseException e) {
                 Log.e(TAG, "onDownloadComplete: " + e.toString());

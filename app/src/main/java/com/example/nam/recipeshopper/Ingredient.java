@@ -3,11 +3,9 @@ package com.example.nam.recipeshopper;
 import android.util.Log;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * Created by Nam on 3/22/2018.
@@ -132,12 +130,6 @@ public class Ingredient implements Serializable{
                 runningTotal += Double.parseDouble(token);
                 continue;
             }
-//            try {
-//                whole = Double.parseDouble(token);
-//                continue;
-//            } catch (NumberFormatException e) {
-//                Log.e(TAG, "Token does not match number format");
-//            }
 
             // TODO: implement checks with regex instead
             String delim = "/";
